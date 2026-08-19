@@ -89,7 +89,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                                 <th className="p-2 border-r border-black text-center w-16">التعبئة</th>
                                 <th className="p-2 border-r border-black text-center w-20">العدد</th>
                                 <th className="p-2 border-r border-black text-center w-28">السعر</th>
-                                <th className="p-2 text-center w-32">الإجمالي</th>
+                                <th className="p-2 border-r border-black text-center w-32">الإجمالي</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -103,7 +103,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                                     <td className="p-2 border-r border-black text-center font-mono">
                                         {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))}
                                     </td>
-                                    <td className="p-2 text-center font-mono font-black">{formatCurrency(item.total_price)}</td>
+                                    <td className="p-2 border-r border-black text-center font-mono font-black">{formatCurrency(item.total_price)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -173,7 +173,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                             <th className="p-2 border-r border-black text-center w-16">التعبئة</th>
                             <th className="p-2 border-r border-black text-center w-20">العدد</th>
                             <th className="p-2 border-r border-black text-center w-28">السعر</th>
-                            <th className="p-2 text-center w-32">الإجمالي</th>
+                            <th className="p-2 border-r border-black text-center w-32">الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
