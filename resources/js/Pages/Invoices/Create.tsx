@@ -537,15 +537,14 @@ export default function InvoiceCreate({
                             <table className="w-full text-sm text-right border-collapse">
                                 <thead className="bg-muted/60 text-xs font-semibold text-muted-foreground border-b border-border">
                                     <tr>
-                                        <th className="p-3 w-10 text-center">ت</th>
-                                        <th className="p-3 min-w-[240px]">اسم المنتج</th>
-                                        <th className="p-3 w-24 text-center">الكارتون</th>
-                                        <th className="p-3 w-20 text-center">التعبئة</th>
-                                        <th className="p-3 w-24 text-center">العدد الكلي</th>
-                                        <th className="p-3 w-32 text-center">سعر القطعة (د.ع)</th>
-                                        <th className="p-3 w-32 text-center">سعر الكرتون (د.ع)</th>
-                                        <th className="p-3 w-36 text-center">الإجمالي</th>
-                                        <th className="p-3 w-10 text-center">حذف</th>
+                                        <th className="p-3 w-12 text-center">ت</th>
+                                        <th className="p-3 min-w-[280px]">اسم المنتج</th>
+                                        <th className="p-3 w-28 text-center">الكارتون</th>
+                                        <th className="p-3 w-24 text-center">التعبئة</th>
+                                        <th className="p-3 w-28 text-center">العدد الكلي</th>
+                                        <th className="p-3 w-36 text-center">السعر</th>
+                                        <th className="p-3 w-40 text-center">الإجمالي</th>
+                                        <th className="p-3 w-12 text-center">حذف</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border">
@@ -587,7 +586,7 @@ export default function InvoiceCreate({
 
                                             {/* التعبئة */}
                                             <td className="p-3 text-center">
-                                                <span className="inline-block px-2 py-1 rounded bg-secondary text-xs font-bold">
+                                                <span className="inline-block px-2.5 py-1 rounded bg-secondary text-xs font-bold">
                                                     {formatCurrency(row.units_per_box)}
                                                 </span>
                                             </td>
@@ -597,20 +596,7 @@ export default function InvoiceCreate({
                                                 {formatCurrency(row.total_pieces)} <span className="text-[11px] font-normal text-muted-foreground">قطعة</span>
                                             </td>
 
-                                            {/* سعر القطعة */}
-                                            <td className="p-3">
-                                                <Input
-                                                    type="number"
-                                                    step="1"
-                                                    min="0"
-                                                    value={row.piece_price}
-                                                    onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
-                                                    className="text-center font-bold h-9 text-blue-700 dark:text-blue-300"
-                                                    required
-                                                />
-                                            </td>
-
-                                            {/* سعر الكرتون */}
+                                            {/* السعر */}
                                             <td className="p-3">
                                                 <Input
                                                     type="number"
@@ -694,10 +680,10 @@ export default function InvoiceCreate({
                                         )}
                                     </div>
 
-                                    {/* Boxes, Piece Price & Box Price Inputs */}
-                                    <div className="grid grid-cols-3 gap-2 pt-1">
+                                    {/* Boxes & Price Inputs */}
+                                    <div className="grid grid-cols-2 gap-3 pt-1">
                                         <div>
-                                            <Label className="text-xs font-bold">الكراتين *</Label>
+                                            <Label className="text-xs font-bold">عدد الكراتين *</Label>
                                             <Input
                                                 type="number"
                                                 min="1"
@@ -709,20 +695,7 @@ export default function InvoiceCreate({
                                         </div>
 
                                         <div>
-                                            <Label className="text-xs font-bold">سعر القطعة *</Label>
-                                            <Input
-                                                type="number"
-                                                step="1"
-                                                min="0"
-                                                value={row.piece_price}
-                                                onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
-                                                className="text-center font-bold h-9 mt-1 text-blue-600"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <Label className="text-xs font-bold">سعر الكرتون *</Label>
+                                            <Label className="text-xs font-bold">السعر (د.ع) *</Label>
                                             <Input
                                                 type="number"
                                                 step="1"
