@@ -56,7 +56,7 @@ interface RowItem {
     boxes: number;
     units_per_box: number;
     total_pieces: number;
-    piece_price: number;
+    piece_price?: number;
     box_price: number;
     total_price: number;
 }
@@ -317,6 +317,7 @@ export default function InvoiceCreate({
                 boxes: 1,
                 units_per_box: 1,
                 total_pieces: 1,
+                piece_price: 0,
                 box_price: 0,
                 total_price: 0,
             },
