@@ -594,7 +594,7 @@ export default function InvoiceCreate({
 
                                             {/* العدد (إجمالي القطع) */}
                                             <td className="p-3 text-center font-bold text-blue-600 dark:text-blue-400">
-                                                {formatCurrency(row.total_pieces)} <span className="text-[11px] font-normal text-muted-foreground">قطعة</span>
+                                                {formatCurrency(row.total_pieces)}
                                             </td>
 
                                             {/* سعر القطعة الواحدة */}

@@ -309,7 +309,7 @@ export default function InvoiceShow({ invoice }: InvoiceShowProps) {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="font-semibold text-blue-600 dark:text-blue-400">
-                                                {formatCurrency(item.total_pieces)} قطعة
+                                                {formatCurrency(item.total_pieces)}
                                             </TableCell>
                                             <TableCell className="font-medium">
                                                 {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))} د.ع
