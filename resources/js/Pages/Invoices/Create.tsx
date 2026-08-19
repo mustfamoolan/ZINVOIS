@@ -345,32 +345,81 @@ export default function InvoiceCreate({
         return form.data.items.reduce((sum, item) => sum + (item.total_price || 0), 0);
     }, [form.data.items]);
 
+    // Centralized Submit Handler with Pre-Validation
+    const submitWithAction = (actionType: 'save_only' | 'save_and_new' | 'save_and_print') => {
+        form.clearErrors();
+
+        let hasError = false;
+
+        if (!form.data.customer_name.trim()) {
+            form.setError('customer_name', 'يرجى اختيار أو كتابة اسم العميل');
+            hasError = true;
+        }
+
+        if (!form.data.invoice_number.trim()) {
+            form.setError('invoice_number', 'يرجى إدخال رقم الفاتورة');
+            hasError = true;
+        }
+
+        // Validate items
+        const updatedItems = [...form.data.items];
+        updatedItems.forEach((item, idx) => {
+            if (!item.product_id && item.product_name.trim()) {
+                const cleanName = item.product_name.trim().toLowerCase();
+                const matched = products.find((p) => p.name.trim().toLowerCase() === cleanName);
+                if (matched) {
+                    const unitsPerBox = maxOne(matched.units_per_box);
+                    const piecePrice = getProductPiecePrice(matched, form.data.type);
+                    const boxPrice = Math.round(piecePrice * unitsPerBox);
+                    const boxes = item.boxes || 1;
+                    updatedItems[idx] = {
+                        ...item,
+                        product_id: matched.id,
+                        product_name: matched.name,
+                        units_per_box: unitsPerBox,
+                        piece_price: piecePrice,
+                        box_price: boxPrice,
+                        total_pieces: boxes * unitsPerBox,
+                        total_price: boxes * boxPrice,
+                    };
+                }
+            }
+
+            if (!updatedItems[idx].product_id) {
+                form.setError(`items.${idx}.product_id` as any, 'يرجى اختيار منتج صحيح من القائمة');
+                hasError = true;
+            }
+        });
+
+        if (hasError) return;
+
+        form.setData('items', updatedItems);
+
+        form.transform((data) => ({
+            ...data,
+            items: updatedItems,
+            action: actionType,
+        }));
+
+        form.post('/invoices', {
+            preserveScroll: true,
+        });
+    };
+
     // Submit Handlers for Save & New vs Save & Print
     const handleSaveAndNew = (e: React.MouseEvent) => {
         e.preventDefault();
-        form.transform((data) => ({
-            ...data,
-            action: 'save_and_new',
-        }));
-        form.post('/invoices');
+        submitWithAction('save_and_new');
     };
 
     const handleSaveAndPrint = (e: React.MouseEvent) => {
         e.preventDefault();
-        form.transform((data) => ({
-            ...data,
-            action: 'save_and_print',
-        }));
-        form.post('/invoices');
+        submitWithAction('save_and_print');
     };
 
     const handleStandardSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.transform((data) => ({
-            ...data,
-            action: 'save_only',
-        }));
-        form.post('/invoices');
+        submitWithAction('save_only');
     };
 
     return (
@@ -410,6 +459,22 @@ export default function InvoiceCreate({
                     <div className="bg-emerald-500/10 border border-emerald-500/30 p-3.5 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 shadow-sm">
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                         <span>{flash.success}</span>
+                    </div>
+                )}
+
+                {/* Flash Error Notification Alert */}
+                {Object.keys(form.errors).length > 0 && (
+                    <div className="bg-destructive/10 border border-destructive/30 p-3.5 rounded-xl text-destructive text-xs font-bold space-y-1 shadow-sm">
+                        <div className="flex items-center gap-2 text-sm font-extrabold">
+                            <span>⚠️ يرجى تصحيح الأخطاء التالية لمتابعة حفظ الفاتورة:</span>
+                        </div>
+                        <ul className="list-disc list-inside space-y-0.5 pr-2">
+                            {form.errors.customer_name && <li>{form.errors.customer_name}</li>}
+                            {form.errors.invoice_number && <li>{form.errors.invoice_number}</li>}
+                            {Object.keys(form.errors).some((key) => key.startsWith('items')) && (
+                                <li>يرجى التأكد من اختيار منتج صحيح وإدخال الكراتين لكل سطر في جدول المنتجات.</li>
+                            )}
+                        </ul>
                     </div>
                 )}
 
@@ -465,6 +530,9 @@ export default function InvoiceCreate({
                                     className="mt-1 font-mono font-bold"
                                     required
                                 />
+                                {form.errors.invoice_number && (
+                                    <p className="text-[11px] text-destructive font-semibold mt-1">⚠️ {form.errors.invoice_number}</p>
+                                )}
                             </div>
 
                             {/* Invoice Date */}
@@ -492,6 +560,9 @@ export default function InvoiceCreate({
                                         placeholder="ابحث باسم العميل أو اكتب اسماً جديداً..."
                                         icon={<UserIcon className="h-3.5 w-3.5" />}
                                     />
+                                    {form.errors.customer_name && (
+                                        <p className="text-[11px] text-destructive font-semibold mt-1">⚠️ {form.errors.customer_name}</p>
+                                    )}
                                     <p className="text-[11px] text-muted-foreground">
                                         💡 ابحث في قائمة العملاء أو اكتب اسم عميل جديد ليُحفظ تلقائياً
                                     </p>
