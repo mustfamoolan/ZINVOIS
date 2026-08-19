@@ -126,7 +126,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                                     {formatCurrency(item.total_pieces)}
                                 </td>
                                 <td className="p-1.5 border border-black text-center text-xs font-mono">
-                                    {formatCurrency(item.box_price)}
+                                    {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))}
                                 </td>
                                 <td className="p-1.5 border border-black text-center font-black text-xs font-mono">
                                     {formatCurrency(item.total_price)}

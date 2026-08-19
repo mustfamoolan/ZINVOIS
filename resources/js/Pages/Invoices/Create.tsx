@@ -597,14 +597,14 @@ export default function InvoiceCreate({
                                                 {formatCurrency(row.total_pieces)} <span className="text-[11px] font-normal text-muted-foreground">قطعة</span>
                                             </td>
 
-                                            {/* السعر */}
+                                            {/* سعر القطعة الواحدة */}
                                             <td className="p-3">
                                                 <Input
                                                     type="number"
                                                     step="1"
                                                     min="0"
-                                                    value={row.box_price}
-                                                    onChange={(e) => handleBoxPriceChange(index, parseFloat(e.target.value) || 0)}
+                                                    value={row.piece_price ?? (row.box_price / (row.units_per_box || 1))}
+                                                    onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
                                                     className="text-center font-bold h-9"
                                                     required
                                                 />
@@ -696,13 +696,13 @@ export default function InvoiceCreate({
                                         </div>
 
                                         <div>
-                                            <Label className="text-xs font-bold">السعر (د.ع) *</Label>
+                                            <Label className="text-xs font-bold">سعر القطعة (د.ع) *</Label>
                                             <Input
                                                 type="number"
                                                 step="1"
                                                 min="0"
-                                                value={row.box_price}
-                                                onChange={(e) => handleBoxPriceChange(index, parseFloat(e.target.value) || 0)}
+                                                value={row.piece_price ?? (row.box_price / (row.units_per_box || 1))}
+                                                onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
                                                 className="text-center font-bold h-9 mt-1"
                                                 required
                                             />

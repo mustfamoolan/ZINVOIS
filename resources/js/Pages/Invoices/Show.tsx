@@ -286,7 +286,7 @@ export default function InvoiceShow({ invoice }: InvoiceShowProps) {
                                         <TableHead>الكراتين</TableHead>
                                         <TableHead>التعبئة</TableHead>
                                         <TableHead>إجمالي القطع</TableHead>
-                                        <TableHead>سعر الكرتون</TableHead>
+                                        <TableHead>سعر القطعة</TableHead>
                                         <TableHead>الإجمالي</TableHead>
                                         <TableHead className="pl-6 text-center print:hidden">الإجراءات</TableHead>
                                     </TableRow>
@@ -312,7 +312,7 @@ export default function InvoiceShow({ invoice }: InvoiceShowProps) {
                                                 {formatCurrency(item.total_pieces)} قطعة
                                             </TableCell>
                                             <TableCell className="font-medium">
-                                                {formatCurrency(item.box_price)} د.ع
+                                                {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))} د.ع
                                             </TableCell>
                                             <TableCell className="font-bold text-primary text-base">
                                                 {formatCurrency(item.total_price)} د.ع
@@ -356,7 +356,7 @@ export default function InvoiceShow({ invoice }: InvoiceShowProps) {
                                             </span>
                                         </div>
                                         <Badge variant="outline" className="shrink-0 text-xs">
-                                            {formatCurrency(item.box_price)} د.ع / كرتون
+                                            {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))} د.ع / قطعة
                                         </Badge>
                                     </div>
 
