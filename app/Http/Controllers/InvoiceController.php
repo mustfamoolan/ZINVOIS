@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -197,6 +198,14 @@ class InvoiceController extends Controller
 
             // تحديث المبلغ الإجمالي للفاتورة
             $invoice->update(['total_amount' => $grandTotal]);
+
+            // تسجيل الحركة في سجل النشاطات
+            $typeLabel = $invoice->type === 'sale' ? 'بيع' : 'شراء';
+            ActivityLog::record(
+                'create_invoice',
+                "تم إنشاء فاتورة {$typeLabel} جديدة رقم #{$invoice->invoice_number} للعميل ({$invoice->customer_name}) بمبلغ " . number_format($grandTotal) . " د.ع",
+                $companyId
+            );
 
             if ($request->input('action') === 'save_and_new') {
                 return redirect()->route('invoices.create')->with('success', "تم حفظ الفاتورة رقم #{$invoice->invoice_number} بنجاح، وتم تصفير وتجهيز نموذج الفاتورة التالية.");

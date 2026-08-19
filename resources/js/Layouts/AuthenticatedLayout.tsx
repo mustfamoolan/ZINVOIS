@@ -18,6 +18,8 @@ import {
     Download,
     PhoneCall,
     Sparkles,
+    UserCheck,
+    History,
 } from 'lucide-react';
 
 interface AuthenticatedProps {
@@ -46,6 +48,16 @@ const navItems = [
         label: 'المخزن',
         href: '/warehouse',
         icon: Package,
+    },
+    {
+        label: 'إدارة المستخدمين',
+        href: '/users',
+        icon: UserCheck,
+    },
+    {
+        label: 'سجل الأحداث',
+        href: '/activity-logs',
+        icon: History,
     },
 ];
 
