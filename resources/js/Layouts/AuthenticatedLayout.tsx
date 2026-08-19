@@ -63,7 +63,7 @@ const navItems = [
 
 export default function AuthenticatedLayout({ children, header, title }: AuthenticatedProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { activeCompany } = usePage<PageProps>().props;
+    const { auth, activeCompany } = usePage<PageProps>().props;
 
     const companyName = activeCompany?.name || 'دلال دجلة';
 
