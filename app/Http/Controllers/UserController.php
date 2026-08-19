@@ -47,8 +47,10 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|string|in:admin,reception,doctor,pharmacy,lab,user',
+            'role' => 'required|string|in:admin,employee,user',
         ]);
+
+        $roleLabel = $validated['role'] === 'admin' ? 'أدمن' : 'موظف';
 
         $user = User::create([
             'name' => $validated['name'],
@@ -59,7 +61,7 @@ class UserController extends Controller
 
         ActivityLog::record(
             'create_user',
-            "تم إنشاء حساب مستخدم جديد باسم ({$user->name}) وصلاحية ({$user->role})"
+            "تم إنشاء حساب مستخدم جديد باسم ({$user->name}) ورتبة ({$roleLabel})"
         );
 
         return redirect()->back()->with('success', "تم إنشاء حساب المستخدم {$user->name} بنجاح");
@@ -74,7 +76,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6',
-            'role' => 'required|string|in:admin,reception,doctor,pharmacy,lab,user',
+            'role' => 'required|string|in:admin,employee,user',
         ]);
 
         $data = [

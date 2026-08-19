@@ -20,8 +20,6 @@ import {
     Edit,
     CheckCircle2,
     UserCheck,
-    Lock,
-    Mail,
     User as UserIcon,
 } from 'lucide-react';
 
@@ -52,12 +50,12 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<UserItem | null>(null);
 
-    // Create Form
+    // Create Form (Defaults to employee)
     const createForm = useForm({
         name: '',
         email: '',
         password: '',
-        role: 'admin',
+        role: 'employee',
     });
 
     // Edit Form
@@ -65,7 +63,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
         name: '',
         email: '',
         password: '',
-        role: 'admin',
+        role: 'employee',
     });
 
     // Search Handler
@@ -92,7 +90,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
             name: user.name,
             email: user.email,
             password: '',
-            role: user.role,
+            role: user.role === 'admin' ? 'admin' : 'employee',
         });
     };
 
@@ -115,22 +113,12 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
         }
     };
 
-    // Role Label Badge Helper
+    // Strict 2 Roles Badge Helper (أدمن / موظف)
     const getRoleBadge = (role: string) => {
-        switch (role) {
-            case 'admin':
-                return <Badge variant="default" className="font-bold bg-primary">مدير النظام (Admin)</Badge>;
-            case 'reception':
-                return <Badge variant="info" className="font-bold">الاستقبال (Reception)</Badge>;
-            case 'doctor':
-                return <Badge variant="success" className="font-bold">الطبيب (Doctor)</Badge>;
-            case 'pharmacy':
-                return <Badge variant="warning" className="font-bold">الصيدلية (Pharmacy)</Badge>;
-            case 'lab':
-                return <Badge variant="secondary" className="font-bold">المختبر (Lab)</Badge>;
-            default:
-                return <Badge variant="outline" className="font-bold">موظف (Employee)</Badge>;
+        if (role === 'admin') {
+            return <Badge variant="default" className="font-bold bg-primary">أدمن (Admin)</Badge>;
         }
+        return <Badge variant="secondary" className="font-bold">موظف (Employee)</Badge>;
     };
 
     return (
@@ -152,7 +140,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                             إدارة المستخدمين والحسابات
                         </h1>
                         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                            إنشاء الحسابات، ضبط الصلاحيات للأطباء والاستقبال والمدراء
+                            إنشاء الحسابات وتحديد الصلاحيات (أدمن / موظف)
                         </p>
                     </div>
 
@@ -222,7 +210,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                                                 <TableHead className="w-12 pr-6">ت</TableHead>
                                                 <TableHead>اسم المستخدم</TableHead>
                                                 <TableHead>البريد الإلكتروني</TableHead>
-                                                <TableHead className="text-center">الصلاحية / الرتبة</TableHead>
+                                                <TableHead className="text-center">الصلاحية</TableHead>
                                                 <TableHead className="text-center">تاريخ الإنشاء</TableHead>
                                                 <TableHead className="pl-6 text-center">الإجراءات</TableHead>
                                             </TableRow>
@@ -357,7 +345,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                 open={isCreateOpen}
                 onClose={() => setIsCreateOpen(false)}
                 title="إضافة حساب مستخدم جديد"
-                description="أدخل تفاصيل الحساب الجديد وحدد صلاحية المستخدم في النظام"
+                description="أدخل بيانات المستخدم واختر نوع الحساب (موظف أم أدمن)"
             >
                 <form onSubmit={handleCreateSubmit} className="space-y-4 text-right" dir="rtl">
                     <div>
@@ -366,7 +354,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                             id="create-name"
                             value={createForm.data.name}
                             onChange={(e) => createForm.setData('name', e.target.value)}
-                            placeholder="مثال: د. علي المحمداوي"
+                            placeholder="اسم الموظف"
                             required
                         />
                     </div>
@@ -390,13 +378,13 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                             type="password"
                             value={createForm.data.password}
                             onChange={(e) => createForm.setData('password', e.target.value)}
-                            placeholder="كلمة مرور قوية"
+                            placeholder="كلمة مرور الحساب"
                             required
                         />
                     </div>
 
                     <div>
-                        <Label htmlFor="create-role">الصلاحية / الرتبة *</Label>
+                        <Label htmlFor="create-role">نوع الحساب والصلاحية *</Label>
                         <select
                             id="create-role"
                             value={createForm.data.role}
@@ -404,12 +392,8 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                             className="w-full mt-1 p-2 rounded-lg border border-input bg-background text-sm font-bold"
                             required
                         >
-                            <option value="admin">مدير النظام (Admin)</option>
-                            <option value="reception">موظف استقبال (Reception)</option>
-                            <option value="doctor">طبيب (Doctor)</option>
-                            <option value="pharmacy">كاشير الصيدلية (Pharmacy)</option>
-                            <option value="lab">فني المختبر (Lab)</option>
-                            <option value="user">موظف عام (Employee)</option>
+                            <option value="employee">موظف (Employee)</option>
+                            <option value="admin">أدمن (Admin)</option>
                         </select>
                     </div>
 
@@ -429,7 +413,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                 open={!!editingUser}
                 onClose={() => setEditingUser(null)}
                 title={`تعديل حساب: ${editingUser?.name}`}
-                description="تعديل اسم المستخدم، البريد، الصلاحية، أو تغيير كلمة المرور"
+                description="تعديل بيانات الحساب، الصلاحية، أو تغيير كلمة المرور"
             >
                 {editingUser && (
                     <form onSubmit={handleEditSubmit} className="space-y-4 text-right" dir="rtl">
@@ -466,7 +450,7 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                         </div>
 
                         <div>
-                            <Label htmlFor="edit-role">الصلاحية / الرتبة *</Label>
+                            <Label htmlFor="edit-role">نوع الحساب والصلاحية *</Label>
                             <select
                                 id="edit-role"
                                 value={editForm.data.role}
@@ -474,12 +458,8 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                                 className="w-full mt-1 p-2 rounded-lg border border-input bg-background text-sm font-bold"
                                 required
                             >
-                                <option value="admin">مدير النظام (Admin)</option>
-                                <option value="reception">موظف استقبال (Reception)</option>
-                                <option value="doctor">طبيب (Doctor)</option>
-                                <option value="pharmacy">كاشير الصيدلية (Pharmacy)</option>
-                                <option value="lab">فني المختبر (Lab)</option>
-                                <option value="user">موظف عام (Employee)</option>
+                                <option value="employee">موظف (Employee)</option>
+                                <option value="admin">أدمن (Admin)</option>
                             </select>
                         </div>
 
