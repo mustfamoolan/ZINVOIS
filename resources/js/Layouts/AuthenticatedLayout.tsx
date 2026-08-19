@@ -183,16 +183,22 @@ export default function AuthenticatedLayout({ children, header, title }: Authent
             <div className="border-t border-border p-3">
                 <div className="flex items-center gap-3 rounded-md px-3 py-2">
                     <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">م</AvatarFallback>
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
+                            {auth?.user?.name ? auth.user.name.charAt(0) : 'م'}
+                        </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0 text-right">
-                        <p className="text-sm font-medium truncate">المستخدم</p>
-                        <p className="text-xs text-muted-foreground truncate">مدير النظام</p>
+                        <p className="text-sm font-bold truncate">{auth?.user?.name || 'المستخدم'}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                            {auth?.user?.role === 'admin' ? 'مدير النظام (أدمن)' : 'موظف'}
+                        </p>
                     </div>
                     <Link
-                        href="/login"
+                        href="/logout"
+                        method="post"
+                        as="button"
                         title="تسجيل الخروج"
-                        className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                        className="text-muted-foreground hover:text-destructive transition-colors p-1"
                     >
                         <LogOut className="h-4 w-4" />
                     </Link>
@@ -297,14 +303,26 @@ export default function AuthenticatedLayout({ children, header, title }: Authent
                         </nav>
                     </div>
 
-                    {/* Active Company Quick Switcher */}
-                    <Link href="/companies">
-                        <Button variant="outline" size="sm" className="gap-2 text-xs font-bold">
-                            <Building2 className="h-3.5 w-3.5 text-primary" />
-                            <span className="hidden sm:inline">{companyName}</span>
-                            <RefreshCw className="h-3 w-3 text-muted-foreground" />
-                        </Button>
-                    </Link>
+                    {/* Active Company Quick Switcher & Logout */}
+                    <div className="flex items-center gap-2">
+                        <Link href="/companies">
+                            <Button variant="outline" size="sm" className="gap-2 text-xs font-bold">
+                                <Building2 className="h-3.5 w-3.5 text-primary" />
+                                <span className="hidden sm:inline">{companyName}</span>
+                                <RefreshCw className="h-3 w-3 text-muted-foreground" />
+                            </Button>
+                        </Link>
+                        <Link
+                            href="/logout"
+                            method="post"
+                            as="button"
+                            title="تسجيل الخروج"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-destructive transition-colors px-2.5 py-1.5 rounded-lg border border-border bg-card shadow-sm"
+                        >
+                            <LogOut className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">تسجيل الخروج</span>
+                        </Link>
+                    </div>
                 </header>
 
                 {/* Page content */}
