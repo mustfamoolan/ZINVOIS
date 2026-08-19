@@ -329,8 +329,8 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                                 <th className="p-3.5 pr-6">اسم المنتج</th>
                                                 <th className="p-3.5">الرصيد بالكراتين</th>
                                                 <th className="p-3.5">تعبئة الكرتون</th>
-                                                <th className="p-3.5">سعر الشراء</th>
-                                                <th className="p-3.5">سعر البيع</th>
+                                                <th className="p-3.5">سعر قطعة الشراء</th>
+                                                <th className="p-3.5">سعر قطعة البيع</th>
                                                 <th className="p-3.5 pl-6 text-center">الإجراءات</th>
                                             </tr>
                                         </thead>
@@ -358,15 +358,25 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                                     </td>
                                                     <td className="p-3.5 text-muted-foreground">
                                                         {product.purchase_price ? (
-                                                            <span className="font-medium text-foreground">
-                                                                {formatCurrency(product.purchase_price)} د.ع
-                                                            </span>
+                                                            <div>
+                                                                <span className="font-medium text-foreground">
+                                                                    {formatCurrency(product.purchase_price)} د.ع
+                                                                </span>
+                                                                <span className="text-[11px] text-muted-foreground block">
+                                                                    (الكرتون: {formatCurrency(product.purchase_price * product.units_per_box)} د.ع)
+                                                                </span>
+                                                            </div>
                                                         ) : (
                                                             <span className="text-xs text-muted-foreground/60">غير محدد</span>
                                                         )}
                                                     </td>
-                                                    <td className="p-3.5 font-bold text-primary text-base">
-                                                        {formatCurrency(product.sale_price)} د.ع
+                                                    <td className="p-3.5">
+                                                        <span className="font-bold text-primary text-base block">
+                                                            {formatCurrency(product.sale_price)} د.ع
+                                                        </span>
+                                                        <span className="text-[11px] text-muted-foreground block">
+                                                            (الكرتون: {formatCurrency(product.sale_price * product.units_per_box)} د.ع)
+                                                        </span>
                                                     </td>
                                                     <td className="p-3.5 pl-6">
                                                         <div className="flex items-center justify-center gap-1.5">
@@ -619,30 +629,40 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
 
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                            <Label htmlFor="purchase_price">سعر الشراء بالدينار العراقي (اختياري)</Label>
+                            <Label htmlFor="purchase_price">سعر قطعة الشراء (د.ع) (اختياري)</Label>
                             <Input
                                 id="purchase_price"
                                 type="number"
                                 step="1"
                                 min="0"
-                                placeholder="مثال: 18000"
+                                placeholder="مثال: 1500"
                                 value={productForm.data.purchase_price}
                                 onChange={(e) => productForm.setData('purchase_price', e.target.value)}
                             />
+                            {productForm.data.purchase_price && productForm.data.units_per_box && (
+                                <p className="text-[11px] text-muted-foreground mt-1">
+                                    💡 سعر الكرتون = {formatCurrency(Number(productForm.data.purchase_price) * Number(productForm.data.units_per_box))} د.ع
+                                </p>
+                            )}
                         </div>
 
                         <div>
-                            <Label htmlFor="sale_price">سعر البيع بالدينار العراقي *</Label>
+                            <Label htmlFor="sale_price">سعر قطعة البيع (د.ع) *</Label>
                             <Input
                                 id="sale_price"
                                 type="number"
                                 step="1"
                                 min="0"
-                                placeholder="مثال: 22000"
+                                placeholder="مثال: 2000"
                                 value={productForm.data.sale_price}
                                 onChange={(e) => productForm.setData('sale_price', e.target.value)}
                                 required
                             />
+                            {productForm.data.sale_price && productForm.data.units_per_box && (
+                                <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                                    💡 سعر الكرتون = {formatCurrency(Number(productForm.data.sale_price) * Number(productForm.data.units_per_box))} د.ع
+                                </p>
+                            )}
                         </div>
                     </div>
 

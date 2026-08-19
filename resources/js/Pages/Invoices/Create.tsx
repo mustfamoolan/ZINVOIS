@@ -56,6 +56,7 @@ interface RowItem {
     boxes: number;
     units_per_box: number;
     total_pieces: number;
+    piece_price: number;
     box_price: number;
     total_price: number;
 }
@@ -88,6 +89,7 @@ export default function InvoiceCreate({
                 boxes: 1,
                 units_per_box: 1,
                 total_pieces: 1,
+                piece_price: 0,
                 box_price: 0,
                 total_price: 0,
             },
@@ -111,6 +113,7 @@ export default function InvoiceCreate({
                         boxes: 1,
                         units_per_box: 1,
                         total_pieces: 1,
+                        piece_price: 0,
                         box_price: 0,
                         total_price: 0,
                     },
@@ -153,21 +156,18 @@ export default function InvoiceCreate({
             return {
                 id: p.id,
                 label: p.name,
-                sublabel: `تعبئة: ${formatCurrency(p.units_per_box)} قطعة - ${formatCurrency(boxPrice)} د.ع`,
+                sublabel: `سعر القطعة: ${formatCurrency(basePiecePrice)} د.ع | سعر الكرتون (${formatCurrency(unitsPerBox)} قطعة): ${formatCurrency(boxPrice)} د.ع`,
                 badge: `المخزن: ${formatCurrency(p.boxes_count)} كرتون`,
                 badgeVariant: p.boxes_count > 0 ? 'success' : 'destructive',
             };
         });
     }, [products, form.data.type]);
 
-    // Helper to calculate box price from product
-    const getProductBoxPrice = (product: Product, type: 'sale' | 'purchase') => {
-        const unitsPerBox = maxOne(product.units_per_box);
-        const basePiecePrice = type === 'purchase' && product.purchase_price
+    // Helper to calculate piece price from product
+    const getProductPiecePrice = (product: Product, type: 'sale' | 'purchase') => {
+        return type === 'purchase' && product.purchase_price
             ? Number(product.purchase_price)
             : Number(product.sale_price);
-
-        return Math.round(basePiecePrice * unitsPerBox);
     };
 
     // Customer Selection Change
@@ -186,17 +186,16 @@ export default function InvoiceCreate({
         let matchedProduct: Product | undefined;
 
         if (option) {
-            // Explicit selection via click or Enter key in Combobox
             matchedProduct = products.find((p) => p.id === option.id || p.id.toString() === option.id.toString());
         } else if (productName.trim()) {
-            // Typing in input -> match ONLY if exact name match
             const cleanName = productName.trim().toLowerCase();
             matchedProduct = products.find((p) => p.name.trim().toLowerCase() === cleanName);
         }
 
         if (matchedProduct) {
             const unitsPerBox = maxOne(matchedProduct.units_per_box);
-            const boxPrice = getProductBoxPrice(matchedProduct, form.data.type);
+            const piecePrice = getProductPiecePrice(matchedProduct, form.data.type);
+            const boxPrice = Math.round(piecePrice * unitsPerBox);
             const boxes = updatedItems[index]?.boxes || 1;
             const totalPieces = boxes * unitsPerBox;
             const totalPrice = boxes * boxPrice;
@@ -207,13 +206,13 @@ export default function InvoiceCreate({
                 boxes: boxes,
                 units_per_box: unitsPerBox,
                 total_pieces: totalPieces,
+                piece_price: piecePrice,
                 box_price: boxPrice,
                 total_price: totalPrice,
             };
 
             form.clearErrors(`items.${index}.product_id` as keyof typeof form.errors);
         } else {
-            // User is still typing or name is not matched yet
             updatedItems[index] = {
                 ...updatedItems[index],
                 product_name: productName,
@@ -228,14 +227,15 @@ export default function InvoiceCreate({
     const handleTypeToggle = (newType: 'sale' | 'purchase') => {
         form.setData('type', newType);
 
-        // Recalculate row box prices based on new type
         const updatedItems = form.data.items.map((row) => {
             if (row.product_id) {
                 const product = products.find((p) => p.id === row.product_id);
                 if (product) {
-                    const boxPrice = getProductBoxPrice(product, newType);
+                    const piecePrice = getProductPiecePrice(product, newType);
+                    const boxPrice = Math.round(piecePrice * row.units_per_box);
                     return {
                         ...row,
+                        piece_price: piecePrice,
                         box_price: boxPrice,
                         total_price: row.boxes * boxPrice,
                     };
@@ -266,17 +266,40 @@ export default function InvoiceCreate({
         form.setData('items', updatedItems);
     };
 
-    // Row Box Price Change
-    const handleBoxPriceChange = (index: number, price: number) => {
-        const validPrice = Math.max(0, price);
+    // Row Piece Price Change
+    const handlePiecePriceChange = (index: number, price: number) => {
+        const validPiecePrice = Math.max(0, price);
         const updatedItems = [...form.data.items];
         const item = updatedItems[index];
 
-        const totalPrice = (item.boxes || 1) * validPrice;
+        const unitsPerBox = maxOne(item.units_per_box);
+        const boxPrice = Math.round(validPiecePrice * unitsPerBox);
+        const totalPrice = (item.boxes || 1) * boxPrice;
 
         updatedItems[index] = {
             ...item,
-            box_price: validPrice,
+            piece_price: validPiecePrice,
+            box_price: boxPrice,
+            total_price: totalPrice,
+        };
+
+        form.setData('items', updatedItems);
+    };
+
+    // Row Box Price Change
+    const handleBoxPriceChange = (index: number, price: number) => {
+        const validBoxPrice = Math.max(0, price);
+        const updatedItems = [...form.data.items];
+        const item = updatedItems[index];
+
+        const unitsPerBox = maxOne(item.units_per_box);
+        const piecePrice = Math.round((validBoxPrice / unitsPerBox) * 100) / 100;
+        const totalPrice = (item.boxes || 1) * validBoxPrice;
+
+        updatedItems[index] = {
+            ...item,
+            piece_price: piecePrice,
+            box_price: validBoxPrice,
             total_price: totalPrice,
         };
 
@@ -514,14 +537,15 @@ export default function InvoiceCreate({
                             <table className="w-full text-sm text-right border-collapse">
                                 <thead className="bg-muted/60 text-xs font-semibold text-muted-foreground border-b border-border">
                                     <tr>
-                                        <th className="p-3 w-12 text-center">ت</th>
-                                        <th className="p-3 min-w-[280px]">اسم المنتج</th>
-                                        <th className="p-3 w-28 text-center">الكارتون</th>
-                                        <th className="p-3 w-24 text-center">التعبئة</th>
-                                        <th className="p-3 w-28 text-center">العدد الكلي</th>
-                                        <th className="p-3 w-36 text-center">السعر (لكل كرتون)</th>
-                                        <th className="p-3 w-40 text-center">الإجمالي</th>
-                                        <th className="p-3 w-12 text-center">حذف</th>
+                                        <th className="p-3 w-10 text-center">ت</th>
+                                        <th className="p-3 min-w-[240px]">اسم المنتج</th>
+                                        <th className="p-3 w-24 text-center">الكارتون</th>
+                                        <th className="p-3 w-20 text-center">التعبئة</th>
+                                        <th className="p-3 w-24 text-center">العدد الكلي</th>
+                                        <th className="p-3 w-32 text-center">سعر القطعة (د.ع)</th>
+                                        <th className="p-3 w-32 text-center">سعر الكرتون (د.ع)</th>
+                                        <th className="p-3 w-36 text-center">الإجمالي</th>
+                                        <th className="p-3 w-10 text-center">حذف</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border">
@@ -563,7 +587,7 @@ export default function InvoiceCreate({
 
                                             {/* التعبئة */}
                                             <td className="p-3 text-center">
-                                                <span className="inline-block px-2.5 py-1 rounded bg-secondary text-xs font-bold">
+                                                <span className="inline-block px-2 py-1 rounded bg-secondary text-xs font-bold">
                                                     {formatCurrency(row.units_per_box)}
                                                 </span>
                                             </td>
@@ -573,7 +597,20 @@ export default function InvoiceCreate({
                                                 {formatCurrency(row.total_pieces)} <span className="text-[11px] font-normal text-muted-foreground">قطعة</span>
                                             </td>
 
-                                            {/* السعر (سعر الكرتون الواحد) */}
+                                            {/* سعر القطعة */}
+                                            <td className="p-3">
+                                                <Input
+                                                    type="number"
+                                                    step="1"
+                                                    min="0"
+                                                    value={row.piece_price}
+                                                    onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
+                                                    className="text-center font-bold h-9 text-blue-700 dark:text-blue-300"
+                                                    required
+                                                />
+                                            </td>
+
+                                            {/* سعر الكرتون */}
                                             <td className="p-3">
                                                 <Input
                                                     type="number"
@@ -657,10 +694,10 @@ export default function InvoiceCreate({
                                         )}
                                     </div>
 
-                                    {/* Boxes & Box Price Inputs */}
-                                    <div className="grid grid-cols-2 gap-3 pt-1">
+                                    {/* Boxes, Piece Price & Box Price Inputs */}
+                                    <div className="grid grid-cols-3 gap-2 pt-1">
                                         <div>
-                                            <Label className="text-xs font-bold">عدد الكراتين *</Label>
+                                            <Label className="text-xs font-bold">الكراتين *</Label>
                                             <Input
                                                 type="number"
                                                 min="1"
@@ -672,7 +709,20 @@ export default function InvoiceCreate({
                                         </div>
 
                                         <div>
-                                            <Label className="text-xs font-bold">سعر الكرتون (د.ع) *</Label>
+                                            <Label className="text-xs font-bold">سعر القطعة *</Label>
+                                            <Input
+                                                type="number"
+                                                step="1"
+                                                min="0"
+                                                value={row.piece_price}
+                                                onChange={(e) => handlePiecePriceChange(index, parseFloat(e.target.value) || 0)}
+                                                className="text-center font-bold h-9 mt-1 text-blue-600"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <Label className="text-xs font-bold">سعر الكرتون *</Label>
                                             <Input
                                                 type="number"
                                                 step="1"
