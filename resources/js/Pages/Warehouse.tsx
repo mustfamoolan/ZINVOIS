@@ -84,17 +84,26 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
     const [restockProduct, setRestockProduct] = useState<Product | null>(null);
 
     // Form for Adding / Editing Product
-    const productForm = useForm({
+    const productForm = useForm<{
+        name: string;
+        units_per_box: string | number;
+        initial_boxes: string | number;
+        purchase_price: string;
+        sale_price: string;
+    }>({
         name: '',
-        units_per_box: 12,
-        initial_boxes: 0,
+        units_per_box: '',
+        initial_boxes: '',
         purchase_price: '',
         sale_price: '',
     });
 
     // Form for Restocking (Boxes only)
-    const restockForm = useForm({
-        boxes: 1,
+    const restockForm = useForm<{
+        boxes: string | number;
+        notes: string;
+    }>({
+        boxes: '',
         notes: '',
     });
 
@@ -107,7 +116,13 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
     // Open Add Product Modal
     const handleOpenAddModal = () => {
         setEditingProduct(null);
-        productForm.reset();
+        productForm.setData({
+            name: '',
+            units_per_box: '',
+            initial_boxes: '',
+            purchase_price: '',
+            sale_price: '',
+        });
         setIsAddModalOpen(true);
     };
 
@@ -117,7 +132,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
         productForm.setData({
             name: product.name,
             units_per_box: product.units_per_box,
-            initial_boxes: 0,
+            initial_boxes: '',
             purchase_price: product.purchase_price ? String(Math.round(product.purchase_price)) : '',
             sale_price: String(Math.round(product.sale_price)),
         });
@@ -575,9 +590,9 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                             id="units_per_box"
                             type="number"
                             min="1"
-                            placeholder="12"
+                            placeholder="مثال: 12"
                             value={productForm.data.units_per_box}
-                            onChange={(e) => productForm.setData('units_per_box', parseInt(e.target.value) || 1)}
+                            onChange={(e) => productForm.setData('units_per_box', e.target.value)}
                             required
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -592,12 +607,12 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                 id="initial_boxes"
                                 type="number"
                                 min="0"
-                                placeholder="0"
+                                placeholder="مثال: 10"
                                 value={productForm.data.initial_boxes}
-                                onChange={(e) => productForm.setData('initial_boxes', parseInt(e.target.value) || 0)}
+                                onChange={(e) => productForm.setData('initial_boxes', e.target.value)}
                             />
                             <p className="text-xs text-muted-foreground mt-1">
-                                سيتم إظهار الرصيد بالكراتين وإجمالي القطع تلقائياً ({productForm.data.initial_boxes * productForm.data.units_per_box} قطعة)
+                                سيتم إظهار الرصيد بالكراتين وإجمالي القطع تلقائياً ({(Number(productForm.data.initial_boxes) || 0) * (Number(productForm.data.units_per_box) || 0)} قطعة)
                             </p>
                         </div>
                     )}
@@ -610,7 +625,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                 type="number"
                                 step="1"
                                 min="0"
-                                placeholder="18000"
+                                placeholder="مثال: 18000"
                                 value={productForm.data.purchase_price}
                                 onChange={(e) => productForm.setData('purchase_price', e.target.value)}
                             />
@@ -623,7 +638,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                 type="number"
                                 step="1"
                                 min="0"
-                                placeholder="22000"
+                                placeholder="مثال: 22000"
                                 value={productForm.data.sale_price}
                                 onChange={(e) => productForm.setData('sale_price', e.target.value)}
                                 required
@@ -671,14 +686,14 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                 id="add_boxes"
                                 type="number"
                                 min="1"
-                                placeholder="أدخل عدد الكراتين المضافة"
+                                placeholder="أدخل عدد الكراتين المضافة..."
                                 value={restockForm.data.boxes}
-                                onChange={(e) => restockForm.setData('boxes', parseInt(e.target.value) || 1)}
+                                onChange={(e) => restockForm.setData('boxes', e.target.value)}
                                 required
                                 autoFocus
                             />
                             <div className="bg-emerald-50 dark:bg-emerald-950/40 p-2.5 mt-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-                                💡 سيتم إضافة <strong>{formatCurrency(restockForm.data.boxes * restockProduct.units_per_box)} قطعة</strong> تلقائياً إلى المخزن ({restockForm.data.boxes} كرتون × {restockProduct.units_per_box} تعبئة).
+                                💡 سيتم إضافة <strong>{formatCurrency((Number(restockForm.data.boxes) || 0) * restockProduct.units_per_box)} قطعة</strong> تلقائياً إلى المخزن ({restockForm.data.boxes || 0} كرتون × {restockProduct.units_per_box} تعبئة).
                             </div>
                         </div>
 
