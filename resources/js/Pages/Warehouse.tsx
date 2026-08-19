@@ -167,7 +167,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
         restockForm.post(`/products/${restockProduct.id}/add-stock`, {
             onSuccess: () => {
                 setRestockProduct(null);
-                restockForm.reset({ boxes: 1, notes: '' });
+                restockForm.reset();
             },
         });
     };
