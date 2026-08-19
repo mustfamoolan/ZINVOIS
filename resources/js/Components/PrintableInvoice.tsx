@@ -69,9 +69,9 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                             </div>
                         </div>
 
-                        {/* Center: Large Invoice Badge */}
+                        {/* Center: Large Invoice Badge - FIXED TYPE AS "نقد" */}
                         <div className="text-center border-2 border-black px-4 py-1.5 bg-neutral-100">
-                            <span className="text-[11px] font-bold block">قائمة {invoice.type === 'sale' ? 'بيع' : 'شراء'}</span>
+                            <span className="text-[11px] font-bold block">قائمة نقد</span>
                             <span className="text-base font-black font-mono tracking-wider">{invoice.invoice_number}</span>
                         </div>
 
@@ -95,7 +95,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                     <div>عنوان العميـل: <span>{invoice.customer_address || '.'}</span></div>
                 </div>
 
-                {/* Items Table with Grayscale Zebra Striping & Thick Underline Header */}
+                {/* Items Table with Grayscale Zebra Striping & Ascending Serial Order (1, 2, 3...) */}
                 <div className="mb-4">
                     <table className="w-full text-xs text-right border-collapse border-2 border-black">
                         <thead>
@@ -175,15 +175,15 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                     <div>العنوان: <span>{invoice.customer_address || '.'}</span></div>
                 </div>
 
-                {/* Meta Box */}
+                {/* Meta Box - FIXED TYPE AS "نقد" */}
                 <div className="border-2 border-black p-3 space-y-1 bg-neutral-50 text-left" dir="rtl">
                     <div className="text-[11px] text-neutral-600">بيانات الفاتورة:</div>
-                    <div>نوع الفاتورة: <span className="font-black">{invoice.type === 'sale' ? 'فاتورة بيع' : 'فاتورة شراء'}</span></div>
+                    <div>نوع الفاتورة: <span className="font-black">نقد</span></div>
                     <div>الهاتف: <span className="font-mono">{info.phones.split('-')[0]}</span></div>
                 </div>
             </div>
 
-            {/* Items Table: Solid Black Header with White Text */}
+            {/* Items Table: Ascending Serial Order (1, 2, 3...) */}
             <div className="mb-4">
                 <table className="w-full text-xs text-right border-collapse border-2 border-black">
                     <thead>
