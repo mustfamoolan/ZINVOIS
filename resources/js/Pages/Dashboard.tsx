@@ -75,10 +75,6 @@ export default function Dashboard({ stats, recentInvoices, lowStockProducts }: D
                             <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-primary/10 text-primary">
                                 شركة {companyName}
                             </span>
-                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                                <Sparkles className="h-3 w-3" />
-                                النظام نشط ومربوط بالكامل
-                            </span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
                             لوحة التحكم والتحليلات - {companyName}
