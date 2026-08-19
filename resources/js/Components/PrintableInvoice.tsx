@@ -143,8 +143,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                     <p className="text-[11px] font-semibold text-neutral-600 mt-1">{info.address}</p>
                 </div>
                 <div className="text-left font-mono">
-                    <div className="text-xs font-bold text-neutral-700">هاتف المحل: {info.phones.split('-')[0]}</div>
-                    <div className="inline-block border border-black px-3 py-1 text-sm font-black mt-1 bg-neutral-100">
+                    <div className="inline-block border border-black px-3 py-1 text-sm font-black bg-neutral-100">
                         رقم الفاتورة: {invoice.invoice_number}
                     </div>
                 </div>
@@ -187,7 +186,7 @@ export function PrintableInvoice({ invoice, id = 'printable-invoice' }: Printabl
                                 <td className="p-2 border-r border-black text-center font-mono">
                                     {formatCurrency(Math.round(item.box_price / (item.units_per_box || 1)))}
                                 </td>
-                                <td className="p-2 text-center font-mono font-black">{formatCurrency(item.total_price)}</td>
+                                <td className="p-2 border-r border-black text-center font-mono font-black">{formatCurrency(item.total_price)}</td>
                             </tr>
                         ))}
                     </tbody>
