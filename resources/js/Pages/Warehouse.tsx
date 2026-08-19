@@ -362,7 +362,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                                                 className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
                                                                 onClick={() => {
                                                                     setRestockProduct(product);
-                                                                    restockForm.setData({ boxes: 1, notes: '' });
+                                                                    restockForm.setData((prev) => ({ ...prev, boxes: 1, notes: '' }));
                                                                 }}
                                                                 title="إضافة كراتين جديدة للمخزن"
                                                             >
@@ -457,7 +457,7 @@ export default function Warehouse({ products, filters, stats }: WarehouseProps) 
                                                         className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
                                                         onClick={() => {
                                                             setRestockProduct(product);
-                                                            restockForm.setData({ boxes: 1, notes: '' });
+                                                            restockForm.setData((prev) => ({ ...prev, boxes: 1, notes: '' }));
                                                         }}
                                                     >
                                                         <Plus className="h-3.5 w-3.5" />
